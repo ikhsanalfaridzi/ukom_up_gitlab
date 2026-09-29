@@ -1,0 +1,183 @@
+﻿ERROR - 2026-07-28 10:01:22 --> [4e79ae4c-3024-4933-8709-efc1941dc3cc:kevin:172.19.0.1] ErrorException: pg_query(): Query failed: ERROR:  column ep.organization_id does not exist
+LINE 5: INNER JOIN &quot;instance&quot;.&quot;organizations&quot; &quot;io&quot; ON &quot;ep&quot;.&quot;organiza...
+                                                      ^ in /var/webapps/system/Database/Postgre/Connection.php:187
+Stack trace:
+#0 [internal function]: CodeIgniter\Debug\Exceptions->errorHandler()
+#1 /var/webapps/system/Database/Postgre/Connection.php(187): pg_query()
+----
+ERROR - 2026-07-28 10:01:22 --> [4e79ae4c-3024-4933-8709-efc1941dc3cc:kevin:172.19.0.1] ErrorException: pg_query(): Query failed: ERROR:  column ep.organization_id does not exist
+LINE 5: INNER JOIN &quot;instance&quot;.&quot;organizations&quot; &quot;io&quot; ON &quot;ep&quot;.&quot;organiza...
+                                                      ^ in /var/webapps/system/Database/Postgre/Connection.php:187
+Stack trace:
+#0 [internal function]: CodeIgniter\Debug\Exceptions->errorHandler()
+#1 /var/webapps/system/Database/Postgre/Connection.php(187): pg_query()
+#2 /var/webapps/system/Database/BaseConnection.php(692): CodeIgniter\Database\Postgre\Connection->execute()
+----
+#7 /var/webapps/system/CodeIgniter.php(932): App\Controllers\Employee\Personnel->postData()
+#8 /var/webapps/system/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+#9 /var/webapps/system/CodeIgniter.php(366): CodeIgniter\CodeIgniter->handleRequest()
+#10 /var/webapps/public/index.php(70): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2026-07-28 10:01:22 --> [4e79ae4c-3024-4933-8709-efc1941dc3cc:kevin:172.19.0.1] pg_query(): Query failed: ERROR:  column ep.organization_id does not exist
+LINE 5: INNER JOIN &quot;instance&quot;.&quot;organizations&quot; &quot;io&quot; ON &quot;ep&quot;.&quot;organiza...
+                                                      ^
+in SYSTEMPATH/Database/Postgre/Connection.php on line 187.
+ 1 [internal function]: CodeIgniter\Debug\Exceptions->errorHandler()
+ 2 SYSTEMPATH/Database/Postgre/Connection.php(187): pg_query()
+----
+#8 /var/webapps/system/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+#9 /var/webapps/system/CodeIgniter.php(366): CodeIgniter\CodeIgniter->handleRequest()
+#10 /var/webapps/public/index.php(70): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2026-07-28 10:01:22 --> [4e79ae4c-3024-4933-8709-efc1941dc3cc:kevin:172.19.0.1] pg_query(): Query failed: ERROR:  column ep.organization_id does not exist
+LINE 5: INNER JOIN &quot;instance&quot;.&quot;organizations&quot; &quot;io&quot; ON &quot;ep&quot;.&quot;organiza...
+                                                      ^
+in SYSTEMPATH/Database/Postgre/Connection.php on line 187.
+ 1 [internal function]: CodeIgniter\Debug\Exceptions->errorHandler()
+ 2 SYSTEMPATH/Database/Postgre/Connection.php(187): pg_query()
+ 3 SYSTEMPATH/Database/BaseConnection.php(692): CodeIgniter\Database\Postgre\Connection->execute()
+----
+ 7 APPPATH/Controllers/Employee/Personnel.php(82): App\Models\Employee\PersonnelModel->get_datatables()
+ 8 SYSTEMPATH/CodeIgniter.php(932): App\Controllers\Employee\Personnel->postData()
+ 9 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+10 SYSTEMPATH/CodeIgniter.php(366): CodeIgniter\CodeIgniter->handleRequest()
+11 FCPATH/index.php(70): CodeIgniter\CodeIgniter->run()
+ERROR - 2026-07-28 10:04:42 --> [4e79ae4c-3024-4933-8709-efc1941dc3cc:kevin:172.19.0.1] ErrorException: pg_query(): Query failed: ERROR:  column ep.organization_id does not exist
+LINE 5: INNER JOIN &quot;instance&quot;.&quot;organizations&quot; &quot;io&quot; ON &quot;ep&quot;.&quot;organiza...
+                                                      ^ in /var/webapps/system/Database/Postgre/Connection.php:187
+Stack trace:
+#0 [internal function]: CodeIgniter\Debug\Exceptions->errorHandler()
+#1 /var/webapps/system/Database/Postgre/Connection.php(187): pg_query()
+----
+ 8 SYSTEMPATH/CodeIgniter.php(932): App\Controllers\Employee\Personnel->postData()
+ 9 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+10 SYSTEMPATH/CodeIgniter.php(366): CodeIgniter\CodeIgniter->handleRequest()
+11 FCPATH/index.php(70): CodeIgniter\CodeIgniter->run()
+ERROR - 2026-07-28 10:04:42 --> [4e79ae4c-3024-4933-8709-efc1941dc3cc:kevin:172.19.0.1] ErrorException: pg_query(): Query failed: ERROR:  column ep.organization_id does not exist
+LINE 5: INNER JOIN &quot;instance&quot;.&quot;organizations&quot; &quot;io&quot; ON &quot;ep&quot;.&quot;organiza...
+                                                      ^ in /var/webapps/system/Database/Postgre/Connection.php:187
+Stack trace:
+#0 [internal function]: CodeIgniter\Debug\Exceptions->errorHandler()
+#1 /var/webapps/system/Database/Postgre/Connection.php(187): pg_query()
+#2 /var/webapps/system/Database/BaseConnection.php(692): CodeIgniter\Database\Postgre\Connection->execute()
+----
+#7 /var/webapps/system/CodeIgniter.php(932): App\Controllers\Employee\Personnel->postData()
+#8 /var/webapps/system/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+#9 /var/webapps/system/CodeIgniter.php(366): CodeIgniter\CodeIgniter->handleRequest()
+#10 /var/webapps/public/index.php(70): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2026-07-28 10:04:42 --> [4e79ae4c-3024-4933-8709-efc1941dc3cc:kevin:172.19.0.1] pg_query(): Query failed: ERROR:  column ep.organization_id does not exist
+LINE 5: INNER JOIN &quot;instance&quot;.&quot;organizations&quot; &quot;io&quot; ON &quot;ep&quot;.&quot;organiza...
+                                                      ^
+in SYSTEMPATH/Database/Postgre/Connection.php on line 187.
+ 1 [internal function]: CodeIgniter\Debug\Exceptions->errorHandler()
+ 2 SYSTEMPATH/Database/Postgre/Connection.php(187): pg_query()
+----
+#8 /var/webapps/system/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+#9 /var/webapps/system/CodeIgniter.php(366): CodeIgniter\CodeIgniter->handleRequest()
+#10 /var/webapps/public/index.php(70): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2026-07-28 10:04:42 --> [4e79ae4c-3024-4933-8709-efc1941dc3cc:kevin:172.19.0.1] pg_query(): Query failed: ERROR:  column ep.organization_id does not exist
+LINE 5: INNER JOIN &quot;instance&quot;.&quot;organizations&quot; &quot;io&quot; ON &quot;ep&quot;.&quot;organiza...
+                                                      ^
+in SYSTEMPATH/Database/Postgre/Connection.php on line 187.
+ 1 [internal function]: CodeIgniter\Debug\Exceptions->errorHandler()
+ 2 SYSTEMPATH/Database/Postgre/Connection.php(187): pg_query()
+ 3 SYSTEMPATH/Database/BaseConnection.php(692): CodeIgniter\Database\Postgre\Connection->execute()
+----
+ 7 APPPATH/Controllers/Employee/Personnel.php(82): App\Models\Employee\PersonnelModel->get_datatables()
+ 8 SYSTEMPATH/CodeIgniter.php(932): App\Controllers\Employee\Personnel->postData()
+ 9 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+10 SYSTEMPATH/CodeIgniter.php(366): CodeIgniter\CodeIgniter->handleRequest()
+11 FCPATH/index.php(70): CodeIgniter\CodeIgniter->run()
+ERROR - 2026-07-28 10:06:17 --> [4e79ae4c-3024-4933-8709-efc1941dc3cc:kevin:172.19.0.1] ErrorException: pg_query(): Query failed: ERROR:  column ep.organization_id does not exist
+LINE 5: INNER JOIN &quot;instance&quot;.&quot;organizations&quot; &quot;io&quot; ON &quot;ep&quot;.&quot;organiza...
+                                                      ^ in /var/webapps/system/Database/Postgre/Connection.php:187
+Stack trace:
+#0 [internal function]: CodeIgniter\Debug\Exceptions->errorHandler()
+#1 /var/webapps/system/Database/Postgre/Connection.php(187): pg_query()
+----
+ 8 SYSTEMPATH/CodeIgniter.php(932): App\Controllers\Employee\Personnel->postData()
+ 9 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+10 SYSTEMPATH/CodeIgniter.php(366): CodeIgniter\CodeIgniter->handleRequest()
+11 FCPATH/index.php(70): CodeIgniter\CodeIgniter->run()
+ERROR - 2026-07-28 10:06:17 --> [4e79ae4c-3024-4933-8709-efc1941dc3cc:kevin:172.19.0.1] ErrorException: pg_query(): Query failed: ERROR:  column ep.organization_id does not exist
+LINE 5: INNER JOIN &quot;instance&quot;.&quot;organizations&quot; &quot;io&quot; ON &quot;ep&quot;.&quot;organiza...
+                                                      ^ in /var/webapps/system/Database/Postgre/Connection.php:187
+Stack trace:
+#0 [internal function]: CodeIgniter\Debug\Exceptions->errorHandler()
+#1 /var/webapps/system/Database/Postgre/Connection.php(187): pg_query()
+#2 /var/webapps/system/Database/BaseConnection.php(692): CodeIgniter\Database\Postgre\Connection->execute()
+----
+#7 /var/webapps/system/CodeIgniter.php(932): App\Controllers\Employee\Personnel->postData()
+#8 /var/webapps/system/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+#9 /var/webapps/system/CodeIgniter.php(366): CodeIgniter\CodeIgniter->handleRequest()
+#10 /var/webapps/public/index.php(70): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2026-07-28 10:06:17 --> [4e79ae4c-3024-4933-8709-efc1941dc3cc:kevin:172.19.0.1] pg_query(): Query failed: ERROR:  column ep.organization_id does not exist
+LINE 5: INNER JOIN &quot;instance&quot;.&quot;organizations&quot; &quot;io&quot; ON &quot;ep&quot;.&quot;organiza...
+                                                      ^
+in SYSTEMPATH/Database/Postgre/Connection.php on line 187.
+ 1 [internal function]: CodeIgniter\Debug\Exceptions->errorHandler()
+ 2 SYSTEMPATH/Database/Postgre/Connection.php(187): pg_query()
+----
+#8 /var/webapps/system/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+#9 /var/webapps/system/CodeIgniter.php(366): CodeIgniter\CodeIgniter->handleRequest()
+#10 /var/webapps/public/index.php(70): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2026-07-28 10:06:17 --> [4e79ae4c-3024-4933-8709-efc1941dc3cc:kevin:172.19.0.1] pg_query(): Query failed: ERROR:  column ep.organization_id does not exist
+LINE 5: INNER JOIN &quot;instance&quot;.&quot;organizations&quot; &quot;io&quot; ON &quot;ep&quot;.&quot;organiza...
+                                                      ^
+in SYSTEMPATH/Database/Postgre/Connection.php on line 187.
+ 1 [internal function]: CodeIgniter\Debug\Exceptions->errorHandler()
+ 2 SYSTEMPATH/Database/Postgre/Connection.php(187): pg_query()
+ 3 SYSTEMPATH/Database/BaseConnection.php(692): CodeIgniter\Database\Postgre\Connection->execute()
+----
+ 7 APPPATH/Controllers/Employee/Personnel.php(82): App\Models\Employee\PersonnelModel->get_datatables()
+ 8 SYSTEMPATH/CodeIgniter.php(932): App\Controllers\Employee\Personnel->postData()
+ 9 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+10 SYSTEMPATH/CodeIgniter.php(366): CodeIgniter\CodeIgniter->handleRequest()
+11 FCPATH/index.php(70): CodeIgniter\CodeIgniter->run()
+ERROR - 2026-07-28 10:08:47 --> [4e79ae4c-3024-4933-8709-efc1941dc3cc:kevin:172.19.0.1] ErrorException: pg_query(): Query failed: ERROR:  column ep.organization_id does not exist
+LINE 5: INNER JOIN &quot;instance&quot;.&quot;organizations&quot; &quot;io&quot; ON &quot;ep&quot;.&quot;organiza...
+                                                      ^ in /var/webapps/system/Database/Postgre/Connection.php:187
+Stack trace:
+#0 [internal function]: CodeIgniter\Debug\Exceptions->errorHandler()
+#1 /var/webapps/system/Database/Postgre/Connection.php(187): pg_query()
+----
+ 8 SYSTEMPATH/CodeIgniter.php(932): App\Controllers\Employee\Personnel->postData()
+ 9 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+10 SYSTEMPATH/CodeIgniter.php(366): CodeIgniter\CodeIgniter->handleRequest()
+11 FCPATH/index.php(70): CodeIgniter\CodeIgniter->run()
+ERROR - 2026-07-28 10:08:47 --> [4e79ae4c-3024-4933-8709-efc1941dc3cc:kevin:172.19.0.1] ErrorException: pg_query(): Query failed: ERROR:  column ep.organization_id does not exist
+LINE 5: INNER JOIN &quot;instance&quot;.&quot;organizations&quot; &quot;io&quot; ON &quot;ep&quot;.&quot;organiza...
+                                                      ^ in /var/webapps/system/Database/Postgre/Connection.php:187
+Stack trace:
+#0 [internal function]: CodeIgniter\Debug\Exceptions->errorHandler()
+#1 /var/webapps/system/Database/Postgre/Connection.php(187): pg_query()
+#2 /var/webapps/system/Database/BaseConnection.php(692): CodeIgniter\Database\Postgre\Connection->execute()
+----
+#7 /var/webapps/system/CodeIgniter.php(932): App\Controllers\Employee\Personnel->postData()
+#8 /var/webapps/system/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+#9 /var/webapps/system/CodeIgniter.php(366): CodeIgniter\CodeIgniter->handleRequest()
+#10 /var/webapps/public/index.php(70): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2026-07-28 10:08:47 --> [4e79ae4c-3024-4933-8709-efc1941dc3cc:kevin:172.19.0.1] pg_query(): Query failed: ERROR:  column ep.organization_id does not exist
+LINE 5: INNER JOIN &quot;instance&quot;.&quot;organizations&quot; &quot;io&quot; ON &quot;ep&quot;.&quot;organiza...
+                                                      ^
+in SYSTEMPATH/Database/Postgre/Connection.php on line 187.
+ 1 [internal function]: CodeIgniter\Debug\Exceptions->errorHandler()
+ 2 SYSTEMPATH/Database/Postgre/Connection.php(187): pg_query()
+----
+#8 /var/webapps/system/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+#9 /var/webapps/system/CodeIgniter.php(366): CodeIgniter\CodeIgniter->handleRequest()
+#10 /var/webapps/public/index.php(70): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2026-07-28 10:08:47 --> [4e79ae4c-3024-4933-8709-efc1941dc3cc:kevin:172.19.0.1] pg_query(): Query failed: ERROR:  column ep.organization_id does not exist
+LINE 5: INNER JOIN &quot;instance&quot;.&quot;organizations&quot; &quot;io&quot; ON &quot;ep&quot;.&quot;organiza...
+                                                      ^
+in SYSTEMPATH/Database/Postgre/Connection.php on line 187.
+ 1 [internal function]: CodeIgniter\Debug\Exceptions->errorHandler()
+ 2 SYSTEMPATH/Database/Postgre/Connection.php(187): pg_query()
+ 3 SYSTEMPATH/Database/BaseConnection.php(692): CodeIgniter\Database\Postgre\Connection->execute()
+----

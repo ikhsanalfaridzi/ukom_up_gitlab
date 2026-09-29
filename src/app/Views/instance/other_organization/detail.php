@@ -1,0 +1,95 @@
+<?php echo $this->extend('layouts/app'); ?>
+
+<?php echo $this->section('content') ?>
+<div class="container-fluid">
+    <?php echo view('layouts/partials/page-title', ['pagetitle' => 'Instansi', 'title' => $title]); ?>
+
+    <div class="row" data-aos="fade-right">
+        <div class="card mb-4">
+            <h5 class="card-header"><?php echo $title; ?></h5>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-sm-2 fw-bold">Sub dari</div>
+                    <div class="col-sm-10"><?php echo nullable_value($result['parent_name']); ?></div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-2 fw-bold">Kode Unit Kerja</div>
+                    <div class="col-sm-10"><?php echo $result['organization_code']; ?></div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-2 fw-bold">Unit Kerja</div>
+                    <div class="col-sm-10"><?php echo $result['organization']; ?></div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-2 fw-bold">Jenis Instansi</div>
+                    <div class="col-sm-10"><?php echo $result['group_name']; ?></div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-2 fw-bold">Status</div>
+                    <div class="col-sm-10"><?php echo boolean_integer($result['is_active'], 'Aktif', 'Tidak Aktif'); ?></div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-2 fw-bold">Unit Kerja Demo</div>
+                    <div class="col-sm-10"><?php echo boolean_integer($result['is_demo']); ?></div>
+                </div>
+                <hr>
+                <div class="row mb-3">
+                    <div class="col-sm-2 fw-bold">Provinsi</div>
+                    <div class="col-sm-10"><?php echo nullable_value($result['province_name']); ?></div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-2 fw-bold">Kota</div>
+                    <div class="col-sm-10"><?php echo nullable_value($result['city_name']); ?></div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-2 fw-bold">Email</div>
+                    <div class="col-sm-10"><?php echo nullable_value($result['email']); ?></div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-2 fw-bold">Nomor Telepon</div>
+                    <div class="col-sm-10"><?php echo nullable_value($result['phone_number']); ?></div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-2 fw-bold">Nomor Fax</div>
+                    <div class="col-sm-10"><?php echo nullable_value($result['fax_number']); ?></div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-2 fw-bold">Alamat</div>
+                    <div class="col-sm-10"><?php echo nullable_value($result['address']); ?></div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-2 fw-bold">Latitude</div>
+                    <div class="col-sm-10"><?php echo nullable_value($result['latitude']); ?></div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-2 fw-bold">Longitude</div>
+                    <div class="col-sm-10"><?php echo nullable_value($result['longitude']); ?></div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-2 fw-bold">Vector</div>
+                    <div class="col-sm-10"><?php echo nullable_value($result['vector']); ?></div>
+                </div>
+                <div class="row mb-3">
+                    <div class="d-flex justify-content-end gap-3">
+                        <?php echo form_button(['type' => 'button', 'id' => 'btn_cancel_' . $uri_name_js_id, 'content' => 'Kembali', 'class' => 'btn btn-outline-secondary btn-cancel']) ?>
+                        <?php echo form_button(['type' => 'button', 'id' => 'btn_edit_' . $uri_name_js_id, 'content' => '<i class="ri-pencil-fill align-bottom me-2"></i>Edit', 'class' => 'btn btn-warning']) ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <?php echo $this->endSection(); ?>
+
+    <?php echo $this->section('javascript'); ?>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $("#btn_cancel_<?php echo $uri_name_js_id; ?>").click(function() {
+                redirect(site_url + uri_name);
+            });
+
+            $("#btn_edit_<?php echo $uri_name_js_id; ?>").click(function() {
+                redirect(site_url + uri_name + '/form/' + '<?php echo $result['id'] ?>');
+            });
+        });
+    </script>
+    <?php echo $this->endSection(); ?>

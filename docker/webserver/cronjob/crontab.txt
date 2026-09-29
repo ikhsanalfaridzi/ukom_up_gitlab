@@ -1,0 +1,1 @@
+*/30 0 * * * /bin/sh /var/webapps/cronjob/app_am_log.sh

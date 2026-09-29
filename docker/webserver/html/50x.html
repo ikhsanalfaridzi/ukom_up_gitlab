@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		<meta charset="utf-8" />
+		<!--[if IE]><meta http-equiv='X-UA-Compatible' content="IE=edge,IE=9,IE=8,chrome=1" /><![endif]-->
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+		<title>503 Services Unavailable</title>
+
+		<style type="text/css">
+			* {
+				-webkit-box-sizing: border-box;
+					box-sizing: border-box;
+			}
+
+			body {
+				padding: 0;
+				margin: 0;
+			}
+
+			#err {
+				position: relative;
+				height: 100vh;
+			}
+
+			#err .err {
+				position: absolute;
+				left: 50%;
+				top: 50%;
+				-webkit-transform: translate(-50%, -50%);
+					-ms-transform: translate(-50%, -50%);
+						transform: translate(-50%, -50%);
+			}
+
+			.err {
+				max-width: 460px;
+				width: 100%;
+				text-align: center;
+				line-height: 1.4;
+			}
+
+			.err .err-code {
+			  position: relative;
+			  width: 180px;
+			  height: 180px;
+			  margin: 0px auto 50px;
+			}
+
+			.err .err-code>div:first-child {
+				position: absolute;
+				left: 0;
+				right: 0;
+				top: 0;
+				bottom: 0;
+				background: #ffa200;
+				-webkit-transform: rotate(45deg);
+					-ms-transform: rotate(45deg);
+						transform: rotate(45deg);
+				border: 5px dashed #000;
+				border-radius: 5px;
+			}
+
+			.err .err-code>div:first-child:before {
+				content: '';
+				position: absolute;
+				left: -5px;
+				right: -5px;
+				bottom: -5px;
+				top: -5px;
+				-webkit-box-shadow: 0px 0px 0px 5px rgba(0, 0, 0, 0.1) inset;
+						box-shadow: 0px 0px 0px 5px rgba(0, 0, 0, 0.1) inset;
+				border-radius: 5px;
+			}
+
+			.err .err-code h1 {
+				font-family: 'Cabin', sans-serif;
+				color: #000;
+				font-weight: 700;
+				margin: 0;
+				font-size: 90px;
+				position: absolute;
+				top: 50%;
+				-webkit-transform: translate(-50%, -50%);
+					-ms-transform: translate(-50%, -50%);
+						transform: translate(-50%, -50%);
+				left: 50%;
+				text-align: center;
+				height: 40px;
+				line-height: 40px;
+			}
+
+			.err h2 {
+				font-family: 'Cabin', sans-serif;
+				font-size: 33px;
+				font-weight: 700;
+				text-transform: uppercase;
+				letter-spacing: 7px;
+			}
+
+			.err p {
+				font-family: 'Cabin', sans-serif;
+				font-size: 16px;
+				color: #000;
+				font-weight: 400;
+			}
+
+			.err a {
+				font-family: 'Cabin', sans-serif;
+				display: inline-block;
+				padding: 10px 25px;
+				/*background-color: #8f8f8f;*/
+				background-color: #ffa100;
+				border: none;
+				border-radius: 40px;
+				color: #fff;
+				font-size: 14px;
+				font-weight: 700;
+				text-transform: uppercase;
+				text-decoration: none;
+				-webkit-transition: 0.2s all;
+						transition: 0.2s all;
+			}
+
+			.err a:hover {
+				background-color: #2c2c2c;
+			}
+
+
+			@media (max-height: 375px)
+			{
+				#err
+				{
+					height: 110vh !important;
+				}
+				.err h2
+				{
+					font-size: 22px;
+					margin: 2px 0px;
+					/*margin-bottom: 2px;*/
+					/*font-weight: 700;*/
+					/*text-transform: uppercase;*/
+					/*letter-spacing: 7px;*/
+				}
+				.err p
+				{
+					font-size: 14px;
+					margin-top: 2px;
+					margin-bottom: 2px;
+				}
+				.err a {
+					padding: 5px 15px;
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<div id="err">
+			<div class="err">
+				<div class="err-code">
+					<div></div>
+					<h1>503</h1>
+				</div>
+				<h2>Services Unavailable</h2>
+				<p>Your Request Page unavailable</p>
+			</div>
+		</div>
+	</body>
+</html>

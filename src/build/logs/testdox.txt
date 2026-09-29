@@ -1,0 +1,3 @@
+Utility Helper
+ [x] Uuid v 4 falls back when ramsey uuid is unavailable
+

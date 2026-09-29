@@ -1,0 +1,86 @@
+version: "3"
+services:
+  database:
+    build:
+      context: .
+      dockerfile: docker/database/Dockerfile
+    image: ${DATABASE_IMAGE}
+    container_name: ${DATABASE_CONTAINER_NAME}
+    restart: always
+    ports:
+      - "${DATABASE_PORT}:5432"
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASS}
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_HOST=${DB_HOST}
+      - POSTGRES_PORT=${DATABASE_PORT}
+      - PGDATA=/var/lib/postgresql/data/pgdata
+      - STRING_VAR=$$
+    networks:
+      - pipeline
+    volumes:
+      - ${STORAGE_ROOT}/storage/db/data:/var/lib/postgresql/data
+      - ${STORAGE_ROOT}/storage/db/backup:/var/lib/postgresql/backup
+    deploy:
+      resources:
+        limits:
+          cpus: '4.0'
+          memory: 4G
+
+  platform:
+    build:
+      context: .
+      dockerfile: docker/platform/Dockerfile
+    image: ${PLATFORM_IMAGE}
+    container_name: ${PLATFORM_CONTAINER_NAME}
+    restart: always
+    ports:
+      - "${PLATFORM_PORT}:9000"
+    networks:
+      - pipeline
+    depends_on:
+      - database
+    volumes:
+      - ${STORAGE_ROOT}/src:${STORAGE_APP_TARGET}
+      - vendor_data:${STORAGE_APP_TARGET}/vendor
+    deploy:
+      resources:
+        limits:
+          cpus: '10.0'
+          memory: 6G
+
+  webserver:
+    build:
+      context: .
+      dockerfile: docker/webserver/Dockerfile
+    image: ${CONTAINER_WEBSERVER_IMAGE}
+    container_name: ${CONTAINER_WEBSERVER_NAME}
+    ports:
+      - "${CONTAINER_WEBSERVER_PORT}:80"
+      - "${CONTAINER_WEBSERVER_PORT_HTTPS}:443"
+    restart: always
+    environment:
+      - SERVER_NAME=${CONTAINER_WEBSERVER_SERVER_NAME}
+      - PLATFORM_SERVER=${CONTAINER_WEBSERVER_PLATFORM_SERVER}
+      - STRING_VAR=$$
+      - APP_ENVIRONMENT=${APP_ENVIRONMENT}
+    depends_on:
+      - platform
+    networks:
+      - pipeline
+    volumes:
+      - ${STORAGE_ROOT}/src:${STORAGE_APP_TARGET}
+      - vendor_data:${STORAGE_APP_TARGET}/vendor
+    deploy:
+      resources:
+        limits:
+          cpus: '4.0'
+          memory: 2G
+
+networks:
+  pipeline:
+    name: ${CONTAINER_NETWORK_NAME}
+
+volumes:
+  vendor_data:

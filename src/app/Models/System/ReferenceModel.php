@@ -1,0 +1,131 @@
+<?php
+
+namespace App\Models\System;
+
+use App\Models\KV_Model;
+
+class ReferenceModel extends KV_Model
+{
+    protected $DBGroup          = 'default';
+    protected $table            = 'sysapp.references';
+    protected $alias            = 'sysapp.references AS sr';
+    protected $primaryKey       = 'id';
+    protected $useAutoIncrement = false;
+    protected $returnType       = 'array';
+    protected $useSoftDeletes   = false;
+    protected $protectFields    = true;
+    protected $uniqueFields     = ['description'];
+    protected $nullableFields   = ['notes'];
+    protected $allowedFields    = ['id', 'description', 'groups', 'notes', 'is_active', 'is_value_option', 'is_note_option'];
+
+    // Dates
+    protected $useTimestamps = true;
+    protected $dateFormat    = 'datetime';
+    protected $createdField  = 'created_at';
+    protected $updatedField  = 'updated_at';
+    protected $deletedField  = 'deleted_at';
+
+    // Validation
+    protected $validationRules      = [
+        'description'       => 'required|max_length[255]',
+        'groups'            => 'required|max_length[100]',
+        'notes'             => 'permit_empty|max_length[255]',
+        'is_active'         => 'permit_empty',
+        'is_value_option'   => 'permit_empty',
+        'is_note_option'    => 'permit_empty',
+    ];
+    protected $validationMessages   = [
+        'description' => [
+            'required'      => 'Silahkan masukkan deskripsi',
+            'max_length'    => 'Deskripsi maksimal 255 karakter',
+        ],
+        'groups' => [
+            'required'      => 'Silahkan masukkan nama grup',
+            'max_length'    => 'Nama grup maksimal 100 karakter',
+        ],
+        'notes' => [
+            'max_length'    => 'Nama grup maksimal 255 karakter',
+        ],
+        'is_active' => [
+            'required'      => 'Silahkan pilih status aktif',
+        ],
+        'is_value_option' => [
+            'required'      => 'Silahkan pilih opsi deskripsi',
+        ],
+        'is_note_option' => [
+            'required'      => 'Silahkan pilih opsi catatan',
+        ],
+    ];
+    protected $skipValidation       = false;
+    protected $cleanValidationRules = true;
+
+    // Callbacks
+    protected $allowCallbacks = true;
+    protected $beforeInsert   = [];
+    protected $afterInsert    = [];
+    protected $beforeUpdate   = [];
+    protected $afterUpdate    = [];
+    protected $beforeFind     = [];
+    protected $afterFind      = [];
+    protected $beforeDelete   = [];
+    protected $afterDelete    = [];
+
+    // Datatables
+    protected $request;
+    protected $column_order = ['description'];
+    protected $order = ['updated_at' => 'DESC'];
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->request = service('request');
+    }
+
+    public function get_datatables()
+    {
+        $query = $this->get_datatables_query();
+
+        if ($this->request->getVar('length') != -1) {
+            $query->limit($this->request->getVar('length'), $this->request->getVar('start'));
+        }
+
+        return $query->get()->getResult();
+    }
+
+    public function count_filtered()
+    {
+        $query = $this->get_datatables_query();
+        return $query->countAllResults();
+    }
+
+    public function count_all()
+    {
+        $builder = $this->db->table($this->alias)->select('sr.id');
+
+        return $builder->countAllResults();
+    }
+
+    private function get_datatables_query()
+    {
+        $builder = $this->db->table($this->alias)->select('sr.id, sr.description, sr.groups, sr.notes, sr.is_active, sr.created_at');
+
+        if (isset($this->request->getVar('search')['value']) && !empty($this->request->getVar('search')['value'])) {
+            $builder->groupStart();
+            $builder->like('LOWER(sr.description)', strtolower($this->request->getVar('search')['value']));
+            $builder->orLike('LOWER(sr.groups)', strtolower($this->request->getVar('search')['value']));
+            $builder->orLike('LOWER(sr.notes)', strtolower($this->request->getVar('search')['value']));
+            $builder->groupEnd();
+        }
+
+        if ($this->order) {
+            $builder->orderBy(key($this->order), current($this->order));
+        } else {
+            $order_column_index = $this->request->getVar('order')[0]['column'];
+            $order_direction = $this->request->getVar('order')[0]['dir'];
+            $builder->orderBy($this->column_order[$order_column_index], $order_direction);
+        }
+
+
+        return $builder;
+    }
+}
