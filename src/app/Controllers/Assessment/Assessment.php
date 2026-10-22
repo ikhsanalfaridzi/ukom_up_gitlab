@@ -207,12 +207,13 @@ class Assessment extends KV_Controller
         }
 
         $builder = $this->db->table('employee.personnel ep')
-            ->select('ep.id, ep.employee_number, ipr.full_name, ea.assortment as grade_name, ips.position as position_name, io.organization as instance_name, ipr.date_of_birth as birth_date, ipr.photo_path as profile_image, ra.created_at, ra.type')
+            ->select('ep.id, ep.employee_number, ipr.full_name, ea.assortment as grade_name, ips.position as position_name, eg.grade as position_grade, io.organization as instance_name, ipr.date_of_birth as birth_date, ipr.photo_path as profile_image, ra.created_at, ra.type')
             ->join('identity.personal ipr', 'ipr.employee_personnel_id = ep.id', 'left')
             ->join('acl.users au', 'au.id = ipr.acl_user_id', 'left')
             ->join('ukom.raw_assessment ra', $raw_assessment_cond, 'left')
             ->join('employee.assortments ea', 'ep.assortment_id = ea.id', 'left')
             ->join('instance.positions ips', 'ep.position_id = ips.id', 'left')
+            ->join('employee.grades eg', 'ips.grade_id = eg.id', 'left')
             ->join('instance.organization_structures ios', 'CAST(ep.organization_structure_id AS VARCHAR) = CAST(ios.id AS VARCHAR)', 'left')
             ->join('instance.organizations io', 'ios.organization_id = io.id', 'left')
             ->where('ep.id', $employee_id);
@@ -251,6 +252,7 @@ class Assessment extends KV_Controller
      */
     public function postCreate()
     {
+
         if (!is_authorized($this->_menu_code, 'insert')) {
             return access_denied();
         }

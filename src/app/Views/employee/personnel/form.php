@@ -13,11 +13,25 @@
     <?php echo csrf_field() ?>
     <div class="row" data-aos="fade-right">
         <div class="card mb-4">
-            <h5 class="card-header d-flex align-items-center gap-2"><i class="ri-user-fill"></i> Identitas Pengguna</h5>
+            <h5 class="card-header d-flex align-items-center gap-2"><i class="ri-user-fill"></i> Data Pegawai</h5>
             <div class="card-body">
                 <div class="modal-body">
                     <div class="row">
-                        <div class="col mb-3">
+                        <div class="col-sm-12 col-lg-6 mb-3">
+                            <?php
+                            $item = [
+                                'type'          => 'text',
+                                'class'         => 'form-control',
+                                'name'          => 'employee_number',
+                                'id'            => 'employee_number',
+                                'maxlength'     => 18,
+                                'placeholder'   => 'Masukkan NIP/NRP',
+                                'value'         => isset($personnel['employee_number']) ? $personnel['employee_number'] : set_value('employee_number')
+                            ];
+                            echo form_label('NIP/NRP' . is_required(), 'employee_number', ['class' => 'form-label']);
+                            echo form_input($item); ?>
+                        </div>
+                        <div class="col-sm-12 col-lg-6 mb-3">
                             <?php
                             $item = [
                                 'type'          => 'text',
@@ -32,58 +46,58 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col mb-3">
-                            <?php
-                            $item = [
-                                'type'          => 'email',
-                                'class'         => 'form-control',
-                                'name'          => 'personal_email',
-                                'id'            => 'personal_email',
-                                'placeholder'   => 'Masukkan Email Pribadi',
-                                'value'         => isset($personal['personal_email']) ? $personal['personal_email'] : set_value('personal_email')
-                            ];
-                            echo form_label('Email Pribadi', 'personal_email', ['class' => 'form-label']);
-                            echo form_input($item); ?>
-                        </div>
-                    </div>
-
-                    <div class="row">
                         <div class="col-sm-12 col-lg-6 mb-3">
                             <?php
-                            $item = [
-                                'type'          => 'number',
-                                'class'         => 'form-control',
-                                'name'          => 'phone_number',
-                                'id'            => 'phone_number',
-                                'placeholder'   => 'Masukkan Nomor Telepon',
-                                'value'         => isset($personal['phone_number']) ? $personal['phone_number'] : set_value('phone_number')
-                            ];
-                            echo form_label('Nomor Telepon', 'phone_number', ['class' => 'form-label']);
-                            echo form_input($item); ?>
-                        </div>
-                        <div class="col-sm-12 col-lg-6 mb-3">
-                            <?php
-                            $item = [
-                                'type'          => 'number',
-                                'class'         => 'form-control',
-                                'name'          => 'wa_number',
-                                'id'            => 'wa_number',
-                                'placeholder'   => 'Masukkan Nomor Whatsapp',
-                                'value'         => isset($personal['wa_number']) ? $personal['wa_number'] : set_value('wa_number')
-                            ];
-                            echo form_label('Nomor Whatsapp', 'wa_number', ['class' => 'form-label']);
-                            echo form_input($item); ?>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-sm-12 col-lg-6 mb-3">
-                            <?php
-                            $gender_options = ['' => '- Silahkan Pilih -', 'L' => 'Laki-laki', 'P' => 'Perempuan'];
-                            $gender_value = isset($personal['gender']) ? $personal['gender'] : '';
-                            echo form_label('Jenis Kelamin' . is_required(), 'gender', ['class' => 'form-label']);
-                            echo form_dropdown('gender', $gender_options, $gender_value, 'id="gender" class="form-select select2"');
+                            $option = 'id="assortment_id" class="form-select select2"';
+                            $value = isset($personnel['assortment_id']) ? $personnel['assortment_id'] : "";
+                            echo form_label('Pangkat' . is_required(), 'assortment_id', ['class' => 'form-label']);
+                            echo form_dropdown('assortment_id', $assortment_options, $value, $option);
                             ?>
                         </div>
+                        <div class="col-sm-12 col-lg-6 mb-3">
+                            <?php
+                            $option = 'id="position_id" class="form-select select2"';
+                            $value = isset($personnel['position_id']) ? $personnel['position_id'] : "";
+                            echo form_label('Jabatan' . is_required(), 'position_id', ['class' => 'form-label']);
+                            echo form_dropdown('position_id', $position_options, $value, $option);
+                            ?>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12 col-lg-6 mb-3">
+                            <?php echo form_label('Instansi Asal' . is_required(), 'organization_structure_id', ['class' => 'form-label']); ?>
+                            <select name="organization_structure_id" id="organization_structure_id" class="form-select select2">
+                                <option value="">- Silahkan Pilih -</option>
+                                <?php
+                                    $selected_val = isset($personnel['organization_structure_id']) ? $personnel['organization_structure_id'] : '';
+                                    
+                                    if (is_array($organization_options)) {
+                                        foreach($organization_options as $val => $text) {
+                                            $selected = ($selected_val == $val) ? 'selected' : '';
+                                            echo "<option value=\"$val\" $selected>$text</option>";
+                                        }
+                                    } else {
+                                        echo $organization_options; 
+                                    }
+                                ?>
+                            </select>
+                        </div>
+                        <div class="col-sm-12 col-lg-6 mb-3">
+                            <?php
+                            $item = [
+                                'type'          => 'text',
+                                'class'         => 'form-control',
+                                'name'          => 'tingkatan',
+                                'id'            => 'tingkatan',
+                                'placeholder'   => 'Otomatis dari Jabatan',
+                                'readonly'      => true,
+                                'value'         => set_value('tingkatan')
+                            ];
+                            echo form_label('Tingkatan', 'tingkatan', ['class' => 'form-label']);
+                            echo form_input($item); ?>
+                        </div>
+                    </div>
+                    <div class="row">
                         <div class="col-sm-12 col-lg-6 mb-3">
                             <?php
                             $item = [
@@ -104,84 +118,6 @@
     </div>
 
     <div class="row" data-aos="fade-left">
-        <div class="card mb-4">
-            <h5 class="card-header d-flex align-items-center gap-2"><i class="ri-government-line"></i> Kepegawaian</h5>
-            <div class="card-body">
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col-sm-12 col-lg-6 mb-3">
-                            <?php
-                            $item = [
-                                'type'          => 'number',
-                                'class'         => 'form-control',
-                                'name'          => 'employee_number',
-                                'id'            => 'employee_number',
-                                'maxlength'     => 18,
-                                'placeholder'   => 'Masukkan NIP',
-                                'value'         => isset($personnel['employee_number']) ? $personnel['employee_number'] : set_value('employee_number')
-                            ];
-                            echo form_label('NIP' . is_required(), 'employee_number', ['class' => 'form-label']);
-                            echo form_input($item); ?>
-                        </div>
-                        <div class="col-sm-12 col-lg-6 mb-3">
-                            <?php echo form_label('Unit Kerja/Satuan Kerja' . is_required(), 'organization_structure_id', ['class' => 'form-label']); ?>
-                            <select name="organization_structure_id" id="organization_structure_id" class="form-select select2">
-                                <option value="">- Silahkan Pilih -</option>
-                                <?php
-                                    $selected_val = isset($personnel['organization_structure_id']) ? $personnel['organization_structure_id'] : '';
-                                    
-                                    if (is_array($organization_options)) {
-                                        foreach($organization_options as $val => $text) {
-                                            $selected = ($selected_val == $val) ? 'selected' : '';
-                                            echo "<option value=\"$val\" $selected>$text</option>";
-                                        }
-                                    } else {
-                                        echo $organization_options; 
-                                    }
-                                ?>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-sm-12 col-lg-6 mb-3">
-                            <?php
-                            $option = 'id="position_id" class="form-select select2"';
-                            $value = isset($personnel['position_id']) ? $personnel['position_id'] : "";
-                            echo form_label('Jabatan' . is_required(), 'position_id', ['class' => 'form-label']);
-                            echo form_dropdown('position_id', $position_options, $value, $option);
-                            ?>
-                        </div>
-                        <div class="col-sm-12 col-lg-6 mb-3">
-                            <?php
-                            $option = 'id="position_grade_id" class="form-select select2"';
-                            $value = isset($personnel['position_grade_id']) ? $personnel['position_grade_id'] : "";
-                            echo form_label('Grade / Eselon', 'position_grade_id', ['class' => 'form-label']);
-                            echo form_dropdown('position_grade_id', $grade_options, $value, $option);
-                            ?>
-                        </div>
-                        <div class="col-sm-12 col-lg-6 mb-3">
-                            <?php
-                            $option = 'id="assortment_id" class="form-select select2"';
-                            $value = isset($personnel['assortment_id']) ? $personnel['assortment_id'] : "";
-                            echo form_label('Pangkat' . is_required(), 'assortment_id', ['class' => 'form-label']);
-                            echo form_dropdown('assortment_id', $assortment_options, $value, $option);
-                            ?>
-                        </div>
-                        <div class="col-sm-12 col-lg-6 mb-3">
-                            <?php
-                            $option = 'id="employment_id" class="form-select select2"';
-                            $value = isset($personnel['employment_id']) ? $personnel['employment_id'] : "";
-                            echo form_label('Status Kepegawaian' . is_required(), 'employment_id', ['class' => 'form-label']);
-                            echo form_dropdown('employment_id', $employment_options, $value, $option);
-                            ?>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row" data-aos="fade-right">
         <div class="card mb-4">
             <h5 class="card-header d-flex align-items-center gap-2"><i class="ri-account-box-line"></i> Akun</h5>
             <div class="card-body">
@@ -352,10 +288,13 @@
 <?php echo $this->section('javascript'); ?>
 <script src="<?php echo base_url('vlz/libs/select2/select2.min.js'); ?>" type="text/javascript"></script>
 <script src="<?php echo base_url('vlz/libs/flatpickr/flatpickr.min.js'); ?>"></script>
+<script src="<?php echo base_url('vlz/js/pages/password-addon.init.js'); ?>" type="text/javascript"></script>
 <script src="<?php echo base_url('vlz/js/form-handler.js'); ?>" type="text/javascript"></script>
 
 <script type="text/javascript">
     $(document).ready(function() {
+        const positionGrades = <?php echo json_encode(isset($position_grades) ? $position_grades : []); ?>;
+
         $('.select2').select2({
             placeholder: '- Silahkan Pilih -',
             allowClear: true,
@@ -368,6 +307,15 @@
             altFormat: "d-m-Y",
             allowInput: true
         });
+
+        function syncTingkatan() {
+            const positionId = $('#position_id').val();
+            const grade = (positionId && Object.prototype.hasOwnProperty.call(positionGrades, positionId)) ? positionGrades[positionId] : '';
+            $('#tingkatan').val(grade || '');
+        }
+
+        $('#position_id').on('change', syncTingkatan);
+        syncTingkatan();
 
         $("#btn_cancel_<?php echo $uri_name_js_id; ?>").click(function() {
             redirect(site_url + uri_name);

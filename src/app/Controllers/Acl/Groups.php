@@ -152,6 +152,7 @@ class Groups extends KV_Controller
 
     public function postCreate()
     {
+
         if (!is_authorized($this->_menu_code, 'insert')) {
             return access_denied();
         }
@@ -188,6 +189,7 @@ class Groups extends KV_Controller
 
     public function postEdit($id)
     {
+
         if (!is_authorized($this->_menu_code, 'update')) {
             return access_denied();
         }
@@ -262,13 +264,10 @@ class Groups extends KV_Controller
 
     protected function delete_group($id)
     {
-        try {
-            $this->group_permission->where('group_id', $id)->delete();
-            $this->group->delete($id);
+        $this->group_permission->where('group_id', $id)->delete();
+        $this->db->table('acl.user_groups')->where('group_id', $id)->delete();
+        $this->group->delete($id);
 
-            return $id;
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
+        return $id;
     }
 }

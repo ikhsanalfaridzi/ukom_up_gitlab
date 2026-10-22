@@ -52,7 +52,6 @@ class KV_Model extends Model
 
         return $result;
     }
-
     /**
      * Override update with logging
      */

@@ -24,27 +24,97 @@
                                 <div class="col-md-6">
                                     <div class="row mb-3">
                                         <div class="col-md-4 fw-bold">NIP/NRP</div>
-                                        <div class="col-md-8"><?php echo $result['employee_number'] ? $result['employee_number'] : "-"; ?></div>
+                                        <div class="col-md-8"><?php echo $result['employee_number'] ?: "-"; ?></div>
                                     </div>
+                                    <?php if (!empty($result['old_employee_number'])) : ?>
+                                        <div class="row mb-3">
+                                            <div class="col-md-4 fw-bold">NIP/NRP Lama</div>
+                                            <div class="col-md-8"><?php echo $result['old_employee_number']; ?></div>
+                                        </div>
+                                    <?php endif; ?>
                                     <div class="row mb-3">
                                         <div class="col-md-4 fw-bold">Nama Lengkap</div>
                                         <div class="col-md-8"><?php echo $result['full_name'] ? strtoupper($result['full_name']) : "-"; ?></div>
                                     </div>
                                     <div class="row mb-3">
-                                        <div class="col-md-4 fw-bold">Tanggal Wawancara</div>
-                                        <div class="col-md-8"><?php echo $result['created_at'] ? format_date($result['created_at'], false) : "-"; ?></div>
+                                        <div class="col-md-4 fw-bold">Pangkat/Golongan</div>
+                                        <div class="col-md-8"><?php echo $result['assortment'] ? $result['assortment'] . (!empty($result['assortment_description']) ? ' - ' . $result['assortment_description'] : '') : "-"; ?></div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <div class="col-md-4 fw-bold">Jabatan</div>
+                                        <div class="col-md-8"><?php echo $result['position'] ?: "-"; ?></div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <div class="col-md-4 fw-bold">Tingkatan</div>
+                                        <div class="col-md-8"><?php echo $result['position_grade'] ?: "-"; ?></div>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="row mb-3">
-                                        <div class="col-md-4 fw-bold">Golongan</div>
-                                        <div class="col-md-8"><?php echo $result['grade_name'] ?? "-"; ?></div>
+                                        <div class="col-md-4 fw-bold">Instansi Asal</div>
+                                        <div class="col-md-8"><?php echo $result['organization'] ?: "-"; ?></div>
                                     </div>
                                     <div class="row mb-3">
-                                        <div class="col-md-4 fw-bold">Jabatan</div>
-                                        <div class="col-md-8"><?php echo $result['position_name'] ?? "-"; ?></div>
+                                        <div class="col-md-4 fw-bold">Status Kepegawaian</div>
+                                        <div class="col-md-8"><?php echo $result['employment'] ? $result['employment'] . (!empty($result['employment_type']) ? ' - ' . $result['employment_type'] : '') : "-"; ?></div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <div class="col-md-4 fw-bold">Tanggal Lahir</div>
+                                        <div class="col-md-8"><?php echo !empty($result['date_of_birth']) ? format_date($result['date_of_birth'], false) . ' (' . calculate_age($result['date_of_birth']) . ' th)' : "-"; ?></div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <div class="col-md-4 fw-bold">Email Pribadi</div>
+                                        <div class="col-md-8"><?php echo $result['personal_email'] ?: "-"; ?></div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <div class="col-md-4 fw-bold">No HP / WA</div>
+                                        <div class="col-md-8"><?php echo $result['phone_number'] ?: "-"; ?><?php echo !empty($result['wa_number']) ? ' / ' . $result['wa_number'] : ''; ?></div>
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">Akun &amp; Verifikasi</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="row mb-3">
+                                <div class="col-md-4 fw-bold">Username</div>
+                                <div class="col-md-8"><?php echo $result['username'] ?: "-"; ?></div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-4 fw-bold">Grup Akses</div>
+                                <div class="col-md-8"><?php echo $result['role'] ?: "-"; ?></div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-4 fw-bold">Status Akun</div>
+                                <div class="col-md-8">
+                                    <?php if ($result['is_active']) : ?>
+                                        <span class="badge bg-label-success">Aktif</span>
+                                    <?php else : ?>
+                                        <span class="badge bg-label-danger">Tidak Aktif</span>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="row mb-3">
+                                <div class="col-md-4 fw-bold">Status Verifikasi</div>
+                                <div class="col-md-8">
+                                    <?php if ($result['is_verified']) : ?>
+                                        <span class="badge bg-label-success">Terverifikasi</span>
+                                    <?php else : ?>
+                                        <span class="badge bg-label-warning">Belum Terverifikasi</span>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-4 fw-bold">Diverifikasi Pada</div>
+                                <div class="col-md-8"><?php echo $result['verified_at'] ? format_date($result['verified_at'], false) : "-"; ?></div>
                             </div>
                         </div>
                     </div>

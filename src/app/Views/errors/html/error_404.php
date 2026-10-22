@@ -4,10 +4,10 @@
 <head>
 
     <meta charset="utf-8" />
-    <title><?php echo lang('Errors.pageNotFound') ?> | Kev Codebase</title>
+    <title><?php echo lang('Errors.pageNotFound') ?> | UJI KOMPETENSI MELALUI WAWANCARA</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta content="Aplikasi Kev Codebase PT Baru Transformasi Indonesia" name="description" />
-    <meta content="PT Baru Transformasi Indonesia" name="author" />
+    <meta content="Aplikasi Uji Kompetensi Melalui Wawancara Kementerian Imigrasi dan Pemasyarakatan" name="description" />
+    <meta content="Kementerian Imigrasi dan Pemasyarakatan" name="author" />
     <!-- App favicon -->
     <link rel="shortcut icon" href="<?php echo base_url('vlz/images/favicon.ico') ?>">
 

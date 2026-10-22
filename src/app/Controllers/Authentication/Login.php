@@ -58,16 +58,21 @@ class Login extends KV_Controller
                 throw new Exception('Missing Captcha. Please do captcha verification.');
             }
 
-            if ($data['kv-captcha'] === session()->get('kv-code')) {
-                $result = $this->auth_lib->authenticate($data);
+            $captcha_valid = strcasecmp((string) $data['kv-captcha'], (string) session()->get('kv-code')) === 0;
 
-                // Remove captcha code 
-                session()->remove('kv-code');
+            // Captcha bersifat sekali pakai
+            session()->remove('kv-code');
 
-                return $this->response_success($result);
-            } else {
+            if (!$captcha_valid) {
                 throw new Exception('Invalid Captcha.');
             }
+
+            $result = $this->auth_lib->authenticate($data);
+
+            // Cegah session fixation
+            session()->regenerate();
+
+            return $this->response_success($result);
         } catch (Exception $e) {
             return $this->response_error($e->getMessage());
         }

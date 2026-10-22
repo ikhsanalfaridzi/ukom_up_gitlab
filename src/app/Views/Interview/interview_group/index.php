@@ -15,6 +15,7 @@
                 <tr>
                     <th class="text-center">Kelompok Wawancara</th>
                     <th class="text-center">Level Kompetensi</th>
+                    <th class="text-center">Jenis</th>
                     <th class="text-center">
                         <a href="<?php echo site_url('interview/interview_group/form'); ?>" class="btn btn-sm btn-icon btn-primary rounded-pill">
                             <span class="tf-icons bx bx-plus-circle"></span>
@@ -51,7 +52,8 @@
             columns: [
                 { data: 0 },
                 { data: 1 },
-                { data: 2, orderable: false }
+                { data: 2 },
+                { data: 3, orderable: false }
             ],
             buttons: []
         });

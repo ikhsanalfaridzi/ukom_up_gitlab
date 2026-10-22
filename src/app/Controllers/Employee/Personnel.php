@@ -268,10 +268,12 @@ class Personnel extends KV_Controller
     protected function get_detail($id)
     {
         $result = $this->db->table('employee.personnel ep')
-            ->select('ep.id, au.username, ep.employee_number, ipr.full_name, ea.assortment, pe.employment, ips.position, io.organization, au.is_active, ep.responsibility_letter_path, ep.created_at')
+            ->select('ep.id, ep.employee_number, ep.old_employee_number, ep.office_email, ep.is_verified, ep.verified_at, ep.created_at, ipr.full_name, ipr.front_title, ipr.back_degree, ipr.non_academic_degree, ipr.date_of_birth, ipr.personal_email, ipr.phone_number, ipr.wa_number, ipr.photo_path, ea.assortment, ea.description AS assortment_description, ips.position, eg.grade AS position_grade, io.organization, pe.employment, pet.name AS employment_type, au.username, au.role, au.is_active')
             ->join('employee.assortments ea', 'ep.assortment_id = ea.id', 'left')
             ->join('public.employment pe', 'ep.employment_id = pe.id', 'left')
+            ->join('public.employment_type pet', 'ep.employment_type_id = pet.id', 'left')
             ->join('instance.positions ips', 'ep.position_id = ips.id', 'left')
+            ->join('employee.grades eg', 'ips.grade_id = eg.id', 'left')
             ->join('instance.organization_structures os', 'ep.organization_structure_id = os.id', 'left')
             ->join('instance.organizations io', 'os.organization_id = io.id', 'left')
             ->join('identity.personal ipr', 'ipr.employee_personnel_id = ep.id', 'left')
@@ -470,10 +472,13 @@ class Personnel extends KV_Controller
 
     public function getForm($id = NULL)
     {
-        $employments = $this->employment->select('id, employment')->where('is_active', '1')->findAll();
         $assortments = $this->assortment->select('id, assortment, description')->findAll();
-        $positions = $this->position->select('id, position')->findAll();
-        $grades = $this->grade->select('id, grade')->findAll();
+        $positions = $this->db->table('instance.positions ip')
+            ->select('ip.id, ip.position, eg.grade')
+            ->join('employee.grades eg', 'ip.grade_id = eg.id', 'left')
+            ->orderBy('ip.position', 'asc')
+            ->get()
+            ->getResultArray();
         $organizations = $this->db->table('instance.organization_structures ios')
             ->select('ios.id, ios.structure_name')
             ->join('instance.organizations io', 'ios.organization_id = io.id', 'inner')
@@ -490,7 +495,7 @@ class Personnel extends KV_Controller
 
         if (!empty($id)) {
             $personnel = $this->personnel->select('old_employee_number, employee_number, employment_id, assortment_id, position_id, organization_structure_id')->find($id);
-            $personal = $this->personal->select('full_name, personal_email, phone_number, wa_number, date_of_birth, gender, acl_user_id')->where('employee_personnel_id', $id)->first();
+            $personal = $this->personal->select('full_name, date_of_birth, acl_user_id')->where('employee_personnel_id', $id)->first();
             $user = $this->user->select('id, username, is_active, is_change_password')->where('id', $personal['acl_user_id'])->first();
             $user_groups = $this->user_group->select('group_id')->where('user_id', $user['id'])->findAll();
             $group_ids = array_column($user_groups, 'group_id');
@@ -510,10 +515,9 @@ class Personnel extends KV_Controller
             ];
         }
 
-        $this->_additional_display['employment_options'] = format_options($employments, 'employment');
         $this->_additional_display['assortment_options'] = $assortment_options;
         $this->_additional_display['position_options'] = format_options($positions, 'position');
-        $this->_additional_display['grade_options'] = format_options($grades, 'grade');
+        $this->_additional_display['position_grades'] = array_column($positions, 'grade', 'id');
         $this->_additional_display['organization_options'] = format_options($organizations, 'structure_name');
         $this->_additional_display['group_options'] = format_multiple_options($groups, 'group_name');
     
@@ -528,6 +532,10 @@ class Personnel extends KV_Controller
 
         $personal_rules = $this->personal->validationRules;
         unset(
+            $personal_rules['personal_email'],
+            $personal_rules['phone_number'],
+            $personal_rules['wa_number'],
+            $personal_rules['gender'],
             $personal_rules['place_of_birth'],
             $personal_rules['identity_address'],
             $personal_rules['address'],
@@ -547,6 +555,10 @@ class Personnel extends KV_Controller
 
         $personal_messages = $this->personal->validationMessages;
         unset(
+            $personal_messages['personal_email'],
+            $personal_messages['phone_number'],
+            $personal_messages['wa_number'],
+            $personal_messages['gender'],
             $personal_messages['place_of_birth'],
             $personal_messages['identity_address'],
             $personal_messages['address'],
@@ -570,12 +582,14 @@ class Personnel extends KV_Controller
 
         $personnel_rules = $this->personnel->validationRules;
         unset(
+            $personnel_rules['employment_id'],
             $personnel_rules['employment_type_id'],
             $personnel_rules['responsibility_letter_path']
         );
 
         $personnel_messages = $this->personnel->validationMessages;
         unset(
+            $personnel_messages['employment_id'],
             $personnel_messages['employment_type_id'],
             $personnel_messages['responsibility_letter_path']
         );
@@ -609,7 +623,6 @@ class Personnel extends KV_Controller
         */
         $personnel_data = [
             'employee_number'     => $this->request->getPost('employee_number'),
-            'employment_id'       => $this->request->getPost('employment_id'),
             'assortment_id'       => $this->request->getPost('assortment_id'),
             'position_id'         => $this->request->getPost('position_id'),
             'organization_structure_id' => $this->request->getPost('organization_structure_id'),
@@ -642,8 +655,7 @@ class Personnel extends KV_Controller
         $group_ids = $this->request->getPost('group_id[]');
         $group_names = empty($group_ids) ? [] : $this->group->select('group_name')->whereIn('id', $group_ids)->findAll();
 
-        // Derive email & role from personal data and selected group access
-        $user_data['email'] = $this->request->getPost('personal_email') ?: NULL;
+        // Derive role from selected group access
         $user_data['role']  = empty($group_names) ? NULL : implode(', ', array_column($group_names, 'group_name'));
 
         // Save user data
@@ -663,10 +675,6 @@ class Personnel extends KV_Controller
             'acl_user_id'           => $user_data['id'],
             'employee_personnel_id' => $personnel_data['id'],
             'full_name'             => $this->request->getPost('full_name'),
-            'personal_email'        => $this->request->getPost('personal_email'),
-            'phone_number'          => $this->request->getPost('phone_number'),
-            'wa_number'             => $this->request->getPost('wa_number'),
-            'gender'                => $this->request->getPost('gender'),
             'date_of_birth'         => $this->request->getPost('date_of_birth'),
         ];
         $personal_data['id'] = uuid_v4();
@@ -691,6 +699,10 @@ class Personnel extends KV_Controller
 
         $personal_rules = $this->personal->validationRules;
         unset(
+            $personal_rules['personal_email'],
+            $personal_rules['phone_number'],
+            $personal_rules['wa_number'],
+            $personal_rules['gender'],
             $personal_rules['place_of_birth'],
             $personal_rules['identity_address'],
             $personal_rules['address'],
@@ -710,6 +722,10 @@ class Personnel extends KV_Controller
 
         $personal_messages = $this->personal->validationMessages;
         unset(
+            $personal_messages['personal_email'],
+            $personal_messages['phone_number'],
+            $personal_messages['wa_number'],
+            $personal_messages['gender'],
             $personal_messages['place_of_birth'],
             $personal_messages['identity_address'],
             $personal_messages['address'],
@@ -733,12 +749,14 @@ class Personnel extends KV_Controller
 
         $personnel_rules = $this->personnel->validationRules;
         unset(
+            $personnel_rules['employment_id'],
             $personnel_rules['employment_type_id'],
             $personnel_rules['responsibility_letter_path']
         );
 
         $personnel_messages = $this->personnel->validationMessages;
         unset(
+            $personnel_messages['employment_id'],
             $personnel_messages['employment_type_id'],
             $personnel_messages['responsibility_letter_path']
         );
@@ -782,7 +800,6 @@ class Personnel extends KV_Controller
         */
         $personnel_data = [
             'employee_number'     => $this->request->getPost('employee_number'),
-            'employment_id'       => $this->request->getPost('employment_id'),
             'assortment_id'       => $this->request->getPost('assortment_id'),
             'position_id'         => $this->request->getPost('position_id'),
             'organization_structure_id' => $this->request->getPost('organization_structure_id'),
@@ -817,8 +834,7 @@ class Personnel extends KV_Controller
         $group_ids = $this->request->getPost('group_id[]');
         $group_names = empty($group_ids) ? [] : $this->group->select('group_name')->whereIn('id', $group_ids)->findAll();
 
-        // Derive email & role from personal data and selected group access
-        $user_data['email'] = $this->request->getPost('personal_email') ?: NULL;
+        // Derive role from selected group access
         $user_data['role']  = empty($group_names) ? NULL : implode(', ', array_column($group_names, 'group_name'));
 
         // Save user data
@@ -834,10 +850,6 @@ class Personnel extends KV_Controller
         */
         $personal_data = [
             'full_name'             => $this->request->getPost('full_name'),
-            'personal_email'        => $this->request->getPost('personal_email'),
-            'phone_number'          => $this->request->getPost('phone_number'),
-            'wa_number'             => $this->request->getPost('wa_number'),
-            'gender'                => $this->request->getPost('gender'),
             'date_of_birth'         => $this->request->getPost('date_of_birth'),
         ];
 

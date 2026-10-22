@@ -14,7 +14,6 @@ class AclLib
     protected $group_permission;
 
     protected $unused_menu_codes = [
-        'dashboard',
         'elderly',
         'elderly_master',
         'elderly_activity',
@@ -38,6 +37,7 @@ class AclLib
         // Ambil semua menu dan simpan dalam array dengan key parent_id
         $all_menus = $this->db->table('acl.menu')
             ->select('id, menu_code, menu_name, parent_id, sequence_no')
+            ->orderBy("CASE WHEN menu_code = 'dashboard' THEN 0 ELSE 1 END", 'ASC', false)
             ->orderBy('sequence_no', 'ASC')
             ->get()
             ->getResultArray();
@@ -97,17 +97,38 @@ class AclLib
             throw new Exception('Silahkan masukkan akses kontrol.');
         }
 
-        // Remove permission by group
-        $this->group_permission->where('group_id', $group_id)->delete();
+        // Kelola transaksi sendiri hanya jika tidak sedang berada dalam transaksi lain
+        $own_transaction = ($this->db->transDepth === 0);
 
-        // Assign permission
-        $data = array_map(fn($permission) => [
-            'id'            => uuid_v4(),
-            'group_id'      => $group_id,
-            'permission_id' => $permission,
-        ], $permissions);
+        if ($own_transaction) {
+            $this->db->transBegin();
+        }
 
-        $this->group_permission->insertBatch($data);
+        try {
+            // Remove permission by group
+            $this->group_permission->where('group_id', $group_id)->delete();
+
+            // Assign permission
+            $data = array_map(fn($permission) => [
+                'id'            => uuid_v4(),
+                'group_id'      => $group_id,
+                'permission_id' => $permission,
+            ], $permissions);
+
+            if (!$this->group_permission->insertBatch($data)) {
+                throw new Exception('Gagal menyimpan akses kontrol.');
+            }
+
+            if ($own_transaction) {
+                $this->db->transCommit();
+            }
+        } catch (Exception $e) {
+            if ($own_transaction) {
+                $this->db->transRollback();
+            }
+
+            throw $e;
+        }
     }
 
     public function get_access($user_id = NULL, $menu_code, $action_code)

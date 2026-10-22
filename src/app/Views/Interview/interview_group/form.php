@@ -70,6 +70,23 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="row">
+                            <div class="col mb-3">
+                                <?php
+                                $error = validation_show_error('jenis') ? 'is-invalid' : '';
+                                $selected = isset($data['records']['jenis']) ? $data['records']['jenis'] : set_value('jenis');
+                                $jenis_options = [
+                                    ''     => '- Silahkan Pilih Jenis Uji Kompetensi -',
+                                    'UKKJ' => 'UKKJ (Uji Kompetensi Kenaikan Jenjang)',
+                                    'PDJL' => 'PDJL (Perpindahan Dari Jabatan Lain)',
+                                ];
+                                echo form_label('Jenis Uji Kompetensi', 'jenis', ['class' => 'form-label']);
+                                echo form_dropdown('jenis', $jenis_options, $selected, 'class="form-control select2 ' . $error . '" id="jenis"'); ?>
+                                <div class="invalid-feedback">
+                                    <?php echo validation_show_error('jenis') ?>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <a href="<?php echo site_url('interview/interview_group') ?>" class="btn btn-outline-secondary">Kembali</a>

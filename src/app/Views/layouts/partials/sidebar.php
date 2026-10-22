@@ -57,7 +57,7 @@ $show_pengaturan   = $can_view('interview_group') || $show_penilaian || $show_pe
             <?php if ($is_admin): ?>
                 <li class="nav-item">
                     <a class="nav-link menu-link <?php echo $uri1 == 'home' ? 'active' : '' ?>" href="<?php echo site_url('home/dashboard'); ?>">
-                        <i class="bx bx-home-circle"></i> <span>Dashboard</span>
+                        <i class="bx bx-home-circle"></i> <span>Laman</span>
                     </a>
                 </li>
 
@@ -73,6 +73,14 @@ $show_pengaturan   = $can_view('interview_group') || $show_penilaian || $show_pe
                     <li class="nav-item">
                         <a class="nav-link menu-link <?php echo (($uri1 === 'interview' && $uri2 === 'interview_group' && $uri3 === 'list') || ($uri1 === 'interview_participant')) ? 'active' : '' ?>" href="<?php echo site_url('interview/interview_group/list'); ?>">
                             <i class="bx bxs-user-account"></i> <span>Peserta Wawancara</span>
+                        </a>
+                    </li>
+                <?php endif; ?>
+
+                <?php if ($can_view('monitoring_verification')): ?>
+                    <li class="nav-item">
+                        <a class="nav-link menu-link <?php echo ($uri1 == 'monitoring' && $uri2 == 'verification') ? 'active' : '' ?>" href="<?php echo site_url('monitoring/verification'); ?>">
+                            <i class="bx bx-check-shield"></i> <span>Monitoring Verifikasi</span>
                         </a>
                     </li>
                 <?php endif; ?>
@@ -132,13 +140,10 @@ $show_pengaturan   = $can_view('interview_group') || $show_penilaian || $show_pe
                         <div id="PetaJabatan" class="collapse menu-dropdown <?php echo in_array($uri2, ['grades', 'assortments', 'position_grade', 'position_groups', 'position', 'positions', 'field_classifications', 'position_classifications', 'classes']) ? 'show' : '' ?>">
                             <ul class="nav nav-sm flex-column">
                                 <?php if ($can_view('employee_grade')): ?>
-                                    <li class="nav-item"><a href="<?php echo site_url('employee/grades'); ?>" class="nav-link <?php echo ($uri1 == 'employee' && $uri2 == 'grades') ? 'active' : '' ?>">Golongan</a></li>
+                                    <li class="nav-item"><a href="<?php echo site_url('employee/grades'); ?>" class="nav-link <?php echo ($uri1 == 'employee' && $uri2 == 'grades') ? 'active' : '' ?>">Tingkatan</a></li>
                                 <?php endif; ?>
                                 <?php if ($can_view('employee_assortment')): ?>
-                                    <li class="nav-item"><a href="<?php echo site_url('employee/assortments'); ?>" class="nav-link <?php echo $uri2 == 'assortments' ? 'active' : '' ?>">Pangkat</a></li>
-                                <?php endif; ?>
-                                <?php if ($can_view('instance_position_grade')): ?>
-                                    <li class="nav-item"><a href="<?php echo site_url('instance/position_grade'); ?>" class="nav-link <?php echo $uri2 == 'position_grade' ? 'active' : '' ?>">Tingkatan</a></li>
+                                    <li class="nav-item"><a href="<?php echo site_url('employee/assortments'); ?>" class="nav-link <?php echo $uri2 == 'assortments' ? 'active' : '' ?>">Pangkat/Golongan</a></li>
                                 <?php endif; ?>
                                 <?php if ($can_view('instance_position_group')): ?>
                                     <li class="nav-item"><a href="<?php echo site_url('instance/position_groups'); ?>" class="nav-link <?php echo $uri2 == 'position_groups' ? 'active' : '' ?>">Kelompok Jabatan</a></li>
@@ -316,7 +321,7 @@ $show_pengaturan   = $can_view('interview_group') || $show_penilaian || $show_pe
             <?php else: ?>
                 <li class="nav-item">
                     <a class="nav-link menu-link <?php echo $uri1 == 'home' ? 'active' : '' ?>" href="<?php echo site_url('home/dashboard'); ?>">
-                        <i class="bx bx-home-circle"></i> <span>Dashboard</span>
+                        <i class="bx bx-home-circle"></i> <span>Laman</span>
                     </a>
                 </li>
 
@@ -332,6 +337,14 @@ $show_pengaturan   = $can_view('interview_group') || $show_penilaian || $show_pe
                     <li class="nav-item">
                         <a class="nav-link menu-link <?php echo ($uri1 == 'interview' || $uri1 == 'interview_participant') ? 'active' : '' ?>" href="<?php echo site_url('interview/interview_group/list'); ?>">
                             <i class="bx bxs-user-account"></i> <span>Peserta Wawancara</span>
+                        </a>
+                    </li>
+                <?php endif; ?>
+
+                <?php if ($can_view('monitoring_verification')): ?>
+                    <li class="nav-item">
+                        <a class="nav-link menu-link <?php echo ($uri1 == 'monitoring' && $uri2 == 'verification') ? 'active' : '' ?>" href="<?php echo site_url('monitoring/verification'); ?>">
+                            <i class="bx bx-check-shield"></i> <span>Monitoring Verifikasi</span>
                         </a>
                     </li>
                 <?php endif; ?>

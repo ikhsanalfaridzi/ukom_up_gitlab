@@ -52,13 +52,15 @@ function handleFormSubmit(selector) {
 
       const _form = this;
 
+      const _formData = new FormData(_form);
+
       $.ajax({
         url: _form.action,
         method: _form.method,
         headers: {
           "KV-TOKEN": $('meta[name="csrf-token"]').attr("content"),
         },
-        data: new FormData(_form),
+        data: _formData,
         contentType: false,
         processData: false,
         beforeSend: function () {

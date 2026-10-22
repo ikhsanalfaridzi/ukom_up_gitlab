@@ -95,6 +95,7 @@ class Interview_group extends KV_Controller
             $row    = [];
             $row[]  = $group->name;
             $row[]  = $group->level;
+            $row[]  = $group->jenis;
             $row[]  = "
                 <a href=" . site_url('interview/interview_participant/list/' . $group->id)  . " class='badge bg-info' data-bs-toggle='tooltip' data-bs-placement='bottom' title='Details'><i class='bx bx-search-alt-2'></i></a>
                 <a href=" . site_url('interview/interview_group/form/' . $group->id) . " class='btn btn-warning btn-sm' data-toggle='tooltip' data-placement='bottom' title='Ubah'><i class='bx bx-edit'></i></a>
@@ -187,6 +188,7 @@ class Interview_group extends KV_Controller
 
     public function postCreate()
     {
+
         if (!is_authorized($this->_menu_code, 'insert')) {
             return access_denied();
         }
@@ -208,6 +210,7 @@ class Interview_group extends KV_Controller
 
     public function postEdit($id)
     {
+
         if (!is_authorized($this->_menu_code, 'update')) {
             return access_denied();
         }

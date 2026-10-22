@@ -8,7 +8,7 @@
 <div class="container-xxl flex-grow-1 container-p-y">
     <h3 class="pb-1 mb-4"><?php echo $title ?></h3>
     <div class="d-flex justify-content-between">
-        <a href="<?php echo site_url('interview/interview_group/list') ?>" class="btn btn-primary mb-3">Kembali</a>
+        <a href="<?php echo site_url('employee/personnel/detail/' . $employee_id) ?>" class="btn btn-primary mb-3">Kembali</a>
     </div>
 
     <div class="row mb-5">
@@ -22,24 +22,32 @@
                         <div class="card-body">
                             <h5 class="card-title mb-4">Data Pegawai</h5>
                             <div class="row">
-                                <div class="col-md-6">
+                                <div class="col-sm-6">
                                     <div class="row mb-3">
-                                        <div class="col-md-4 fw-bold">NIP/NRP</div>
-                                        <div class="col-md-8"><?php echo $data['employee_number'] ? $data['employee_number'] : "-"; ?></div>
+                                        <div class="col-5 fw-bold">NIP/NRP</div>
+                                        <div class="col-7"><?php echo !empty($data['employee_number']) ? $data['employee_number'] : "-"; ?></div>
                                     </div>
                                     <div class="row mb-3">
-                                        <div class="col-md-4 fw-bold">Nama Lengkap</div>
-                                        <div class="col-md-8"><?php echo strtoupper($data['full_name']) ?></div>
+                                        <div class="col-5 fw-bold">Nama Lengkap</div>
+                                        <div class="col-7"><?php echo strtoupper($data['full_name'] ?? '-') ?></div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <div class="col-5 fw-bold">Tanggal Lahir</div>
+                                        <div class="col-7"><?php echo !empty($data['birth_date']) ? format_date($data['birth_date'], false) : "-"; ?></div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <div class="col-5 fw-bold">Umur</div>
+                                        <div class="col-7"><?php echo !empty($data['birth_date']) ? calculate_age($data['birth_date']) : "-" ?></div>
                                     </div>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-sm-6">
                                     <div class="row mb-3">
-                                        <div class="col-md-4 fw-bold">Golongan</div>
-                                        <div class="col-md-8"><?php echo $data['grade_name'] ?? "-"; ?></div>
+                                        <div class="col-5 fw-bold">Golongan</div>
+                                        <div class="col-7"><?php echo $data['grade_name'] ?? "-"; ?></div>
                                     </div>
                                     <div class="row mb-3">
-                                        <div class="col-md-4 fw-bold">Jabatan</div>
-                                        <div class="col-md-8"><?php echo $data['position_name'] ?? "-"; ?></div>
+                                        <div class="col-5 fw-bold">Jabatan</div>
+                                        <div class="col-7"><?php echo !empty($data['position_name']) ? $data['position_name'] : "-"; ?></div>
                                     </div>
                                 </div>
                             </div>

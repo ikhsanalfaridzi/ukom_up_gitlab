@@ -12,6 +12,9 @@ use stdClass;
 
 class AuthenticationLib
 {
+    private const MAX_LOGIN_ATTEMPTS = 5;
+    private const LOGIN_ATTEMPT_WINDOW_MINUTES = 15;
+
     protected $db;
     protected $request;
     protected $sys_lib;
@@ -35,6 +38,10 @@ class AuthenticationLib
 
     public function authenticate($data, $is_sso_login = FALSE)
     {
+        if (!$is_sso_login) {
+            $this->guard_login_attempts($data['username']);
+        }
+
         $user = $this->user->select('au.id, au.username, au.password, au.is_active, au.is_change_password, ip.employee_personnel_id')
             ->where('au.username', kv_encrypt($data['username'], getenv('APP_KEY')))
             ->join('identity.personal ip', 'ip.acl_user_id = au.id', 'left')
@@ -75,7 +82,7 @@ class AuthenticationLib
             }
         }
 
-        if (!$user['is_active'] === "0") {
+        if ($user['is_active'] !== "1") {
             $this->save_log('Account Disabled', $data['username'], NULL);
 
             throw new Exception('Akun telah dinonaktifkan, silahkan hubungi administrator.');
@@ -101,6 +108,23 @@ class AuthenticationLib
             return $this->response;
         } else {
             return $this->response;
+        }
+    }
+
+    private function guard_login_attempts($username)
+    {
+        $window_start = date('Y-m-d H:i:s', strtotime('-' . self::LOGIN_ATTEMPT_WINDOW_MINUTES . ' minutes'));
+
+        $failed_attempts = $this->db->table('log.login')
+            ->where('types', 'Failed Login')
+            ->where('username', $username)
+            ->where('created_at >=', $window_start)
+            ->countAllResults();
+
+        if ($failed_attempts >= self::MAX_LOGIN_ATTEMPTS) {
+            $this->save_log('Login Blocked', $username, NULL);
+
+            throw new Exception('Terlalu banyak percobaan login gagal. Silakan coba lagi dalam ' . self::LOGIN_ATTEMPT_WINDOW_MINUTES . ' menit.');
         }
     }
 

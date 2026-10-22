@@ -51,6 +51,7 @@ class RecapModel extends KV_Model
     protected $interview_group;
     protected $question_instrument;
     protected $column_order = ['employee_number', 'full_name'];
+    private $group_result_cache = [];
 
     public function __construct()
     {
@@ -669,5 +670,629 @@ class RecapModel extends KV_Model
         ];
 
         return $response;
+    }
+
+    /**
+     * Ringkasan statistik UKKJ & PDJL untuk Laman.
+     * Lulus = final_score MS (>= 80), selain itu tidak lulus.
+     */
+    public function get_summary($start = NULL, $end = NULL)
+    {
+        $builder = $this->db->table('assessment.interview_groups ig')
+            ->select('ig.id, ig.name, ig.level, ig.jenis, ig.created_at')
+            ->orderBy('ig.created_at', 'ASC');
+
+        if (!empty($start)) {
+            $builder->where('ig.created_at >=', $start . ' 00:00:00');
+        }
+
+        if (!empty($end)) {
+            $builder->where('ig.created_at <=', $end . ' 23:59:59');
+        }
+
+        $groups = $builder->get()->getResultArray();
+
+        $empty = [
+            'pendaftar'     => 0,
+            'dinilai'       => 0,
+            'lulus'         => 0,
+            'tidak_lulus'   => 0,
+            'belum_dinilai' => 0,
+            'kelompok'      => 0,
+        ];
+
+        $summary = [
+            'UKKJ'    => $empty,
+            'PDJL'    => $empty,
+            'periods' => [],
+        ];
+
+        $participants = [];
+        $rows = $this->db->table('assessment.interview_participants')
+            ->select('interview_group_id, COUNT(DISTINCT employee_id) AS total')
+            ->groupBy('interview_group_id')
+            ->get()
+            ->getResultArray();
+
+        foreach ($rows as $row) {
+            $participants[$row['interview_group_id']] = (int) $row['total'];
+        }
+
+        foreach ($groups as $group) {
+            $jenis  = $group['jenis'] === 'PDJL' ? 'PDJL' : 'UKKJ';
+            $period = !empty($group['created_at']) ? substr($group['created_at'], 0, 7) : 'lainnya';
+
+            if (!isset($summary['periods'][$period])) {
+                $summary['periods'][$period] = ['UKKJ' => $empty, 'PDJL' => $empty];
+            }
+
+            $pendaftar = $participants[$group['id']] ?? 0;
+
+            $result      = $this->get_group_result($group['id']);
+            $dinilai     = 0;
+            $lulus       = 0;
+            $tidak_lulus = 0;
+
+            foreach ($result['final_result'] as $item) {
+                $dinilai++;
+
+                if ((float) $item['final_score'] >= 80) {
+                    $lulus++;
+                } else {
+                    $tidak_lulus++;
+                }
+            }
+
+            $belum_dinilai = max(0, $pendaftar - $dinilai);
+
+            $summary[$jenis]['pendaftar']     += $pendaftar;
+            $summary[$jenis]['dinilai']       += $dinilai;
+            $summary[$jenis]['lulus']         += $lulus;
+            $summary[$jenis]['tidak_lulus']   += $tidak_lulus;
+            $summary[$jenis]['belum_dinilai'] += $belum_dinilai;
+            $summary[$jenis]['kelompok']++;
+
+            $summary['periods'][$period][$jenis]['pendaftar']     += $pendaftar;
+            $summary['periods'][$period][$jenis]['dinilai']       += $dinilai;
+            $summary['periods'][$period][$jenis]['lulus']         += $lulus;
+            $summary['periods'][$period][$jenis]['tidak_lulus']   += $tidak_lulus;
+            $summary['periods'][$period][$jenis]['belum_dinilai'] += $belum_dinilai;
+            $summary['periods'][$period][$jenis]['kelompok']++;
+        }
+
+        ksort($summary['periods']);
+
+        return $summary;
+    }
+
+    private function get_group_result($interview_group_id)
+    {
+        if (!isset($this->group_result_cache[$interview_group_id])) {
+            $this->group_result_cache[$interview_group_id] = $this->get_datatables($interview_group_id);
+        }
+
+        return $this->group_result_cache[$interview_group_id];
+    }
+
+    private function target_jenjang($grade)
+    {
+        switch ($grade) {
+            case 'Ahli Pertama':
+                return 'Pertama ke Muda';
+            case 'Ahli Muda':
+                return 'Muda ke Madya';
+            case 'Ahli Madya':
+                return 'Madya ke Utama';
+        }
+
+        return 'Lainnya';
+    }
+
+    /**
+     * Riwayat UKKJ: tren per tahun, rincian per gelombang, dan breakdown jenjang target.
+     */
+    public function get_ukkj_history($start = NULL, $end = NULL)
+    {
+        $builder = $this->db->table('assessment.interview_groups ig')
+            ->select('ig.id, ig.name, ig.level, ig.created_at')
+            ->where('ig.jenis', 'UKKJ')
+            ->orderBy('ig.created_at', 'ASC');
+
+        if (!empty($start)) {
+            $builder->where('ig.created_at >=', $start . ' 00:00:00');
+        }
+
+        if (!empty($end)) {
+            $builder->where('ig.created_at <=', $end . ' 23:59:59');
+        }
+
+        $groups = $builder->get()->getResultArray();
+
+        if (empty($groups)) {
+            return ['groups' => [], 'years' => [], 'jenjang' => []];
+        }
+
+        $group_ids = array_column($groups, 'id');
+
+        $rows = $this->db->table('assessment.interview_participants ip')
+            ->select('ip.interview_group_id, ip.employee_id, g.grade AS current_grade')
+            ->join('employee.personnel ep', 'ep.id = ip.employee_id', 'left')
+            ->join('instance.positions p', 'p.id = ep.position_id', 'left')
+            ->join('employee.grades g', 'g.id = p.grade_id', 'left')
+            ->whereIn('ip.interview_group_id', $group_ids)
+            ->get()
+            ->getResultArray();
+
+        $participants = [];
+
+        foreach ($rows as $row) {
+            $participants[$row['interview_group_id']][$row['employee_id']] = $row['current_grade'];
+        }
+
+        $buckets = ['Pertama ke Muda', 'Muda ke Madya', 'Madya ke Utama', 'Lainnya'];
+
+        $jenjang = array_fill_keys($buckets, 0);
+        $years   = [];
+        $result  = [];
+
+        foreach ($groups as $group) {
+            $year = !empty($group['created_at']) ? substr($group['created_at'], 0, 4) : '-';
+
+            if (!isset($years[$year])) {
+                $years[$year] = [
+                    'pendaftar'     => 0,
+                    'dinilai'       => 0,
+                    'lulus'         => 0,
+                    'tidak_lulus'   => 0,
+                    'belum_dinilai' => 0,
+                ];
+            }
+
+            $scores = [];
+
+            foreach ($this->get_group_result($group['id'])['final_result'] as $item) {
+                $scores[$item['employee_id']] = (float) $item['final_score'];
+            }
+
+            $group_participants = $participants[$group['id']] ?? [];
+            $pendaftar          = count($group_participants);
+            $dinilai            = 0;
+            $lulus              = 0;
+            $tidak_lulus        = 0;
+            $group_jenjang      = array_fill_keys($buckets, 0);
+
+            foreach ($group_participants as $employee_id => $grade) {
+                $bucket = $this->target_jenjang($grade);
+
+                $group_jenjang[$bucket]++;
+                $jenjang[$bucket]++;
+
+                if (isset($scores[$employee_id])) {
+                    $dinilai++;
+
+                    if ($scores[$employee_id] >= 80) {
+                        $lulus++;
+                    } else {
+                        $tidak_lulus++;
+                    }
+                }
+            }
+
+            $belum_dinilai = max(0, $pendaftar - $dinilai);
+
+            $years[$year]['pendaftar']     += $pendaftar;
+            $years[$year]['dinilai']       += $dinilai;
+            $years[$year]['lulus']         += $lulus;
+            $years[$year]['tidak_lulus']   += $tidak_lulus;
+            $years[$year]['belum_dinilai'] += $belum_dinilai;
+
+            $result[] = [
+                'id'             => $group['id'],
+                'name'           => $group['name'],
+                'year'           => $year,
+                'date'           => !empty($group['created_at']) ? substr($group['created_at'], 0, 10) : '-',
+                'pendaftar'      => $pendaftar,
+                'dinilai'        => $dinilai,
+                'lulus'          => $lulus,
+                'tidak_lulus'    => $tidak_lulus,
+                'belum_dinilai'  => $belum_dinilai,
+                'jenjang'        => $group_jenjang,
+            ];
+        }
+
+        usort($result, function ($a, $b) {
+            return strcmp($b['date'], $a['date']);
+        });
+
+        ksort($years);
+
+        return [
+            'groups'  => $result,
+            'years'   => $years,
+            'jenjang' => $jenjang,
+        ];
+    }
+
+    /**
+     * Riwayat PDJL: tren per tahun, rincian per gelombang, dan distribusi asal jabatan.
+     */
+    public function get_pdjl_history($start = NULL, $end = NULL)
+    {
+        $builder = $this->db->table('assessment.interview_groups ig')
+            ->select('ig.id, ig.name, ig.level, ig.created_at')
+            ->where('ig.jenis', 'PDJL')
+            ->orderBy('ig.created_at', 'ASC');
+
+        if (!empty($start)) {
+            $builder->where('ig.created_at >=', $start . ' 00:00:00');
+        }
+
+        if (!empty($end)) {
+            $builder->where('ig.created_at <=', $end . ' 23:59:59');
+        }
+
+        $groups = $builder->get()->getResultArray();
+
+        if (empty($groups)) {
+            return ['groups' => [], 'years' => [], 'jabatan' => []];
+        }
+
+        $group_ids = array_column($groups, 'id');
+
+        $rows = $this->db->table('assessment.interview_participants ip')
+            ->select('ip.interview_group_id, ip.employee_id, p.position AS position_name')
+            ->join('employee.personnel ep', 'ep.id = ip.employee_id', 'left')
+            ->join('instance.positions p', 'p.id = ep.position_id', 'left')
+            ->whereIn('ip.interview_group_id', $group_ids)
+            ->get()
+            ->getResultArray();
+
+        $participants = [];
+
+        foreach ($rows as $row) {
+            $participants[$row['interview_group_id']][$row['employee_id']] = $row['position_name'];
+        }
+
+        $jabatan = [];
+        $years   = [];
+        $result  = [];
+
+        foreach ($groups as $group) {
+            $year = !empty($group['created_at']) ? substr($group['created_at'], 0, 4) : '-';
+
+            if (!isset($years[$year])) {
+                $years[$year] = [
+                    'pendaftar'     => 0,
+                    'dinilai'       => 0,
+                    'lulus'         => 0,
+                    'tidak_lulus'   => 0,
+                    'belum_dinilai' => 0,
+                ];
+            }
+
+            $scores = [];
+
+            foreach ($this->get_group_result($group['id'])['final_result'] as $item) {
+                $scores[$item['employee_id']] = (float) $item['final_score'];
+            }
+
+            $group_participants = $participants[$group['id']] ?? [];
+            $pendaftar          = count($group_participants);
+            $dinilai            = 0;
+            $lulus              = 0;
+            $tidak_lulus        = 0;
+            $group_jabatan      = [];
+
+            foreach ($group_participants as $employee_id => $position) {
+                $label = !empty($position) ? trim($position) : 'Tidak diketahui';
+
+                $group_jabatan[$label] = ($group_jabatan[$label] ?? 0) + 1;
+                $jabatan[$label]      = ($jabatan[$label] ?? 0) + 1;
+
+                if (isset($scores[$employee_id])) {
+                    $dinilai++;
+
+                    if ($scores[$employee_id] >= 80) {
+                        $lulus++;
+                    } else {
+                        $tidak_lulus++;
+                    }
+                }
+            }
+
+            $belum_dinilai = max(0, $pendaftar - $dinilai);
+
+            $years[$year]['pendaftar']     += $pendaftar;
+            $years[$year]['dinilai']       += $dinilai;
+            $years[$year]['lulus']         += $lulus;
+            $years[$year]['tidak_lulus']   += $tidak_lulus;
+            $years[$year]['belum_dinilai'] += $belum_dinilai;
+
+            $result[] = [
+                'id'            => $group['id'],
+                'name'          => $group['name'],
+                'year'          => $year,
+                'date'          => !empty($group['created_at']) ? substr($group['created_at'], 0, 10) : '-',
+                'pendaftar'     => $pendaftar,
+                'dinilai'       => $dinilai,
+                'lulus'         => $lulus,
+                'tidak_lulus'   => $tidak_lulus,
+                'belum_dinilai' => $belum_dinilai,
+                'jabatan'       => $group_jabatan,
+            ];
+        }
+
+        arsort($jabatan);
+
+        usort($result, function ($a, $b) {
+            return strcmp($b['date'], $a['date']);
+        });
+
+        ksort($years);
+
+        return [
+            'groups'  => $result,
+            'years'   => $years,
+            'jabatan' => $jabatan,
+        ];
+    }
+
+    /**
+     * Rata-rata nilai per komponen penilaian, dikelompokkan per jenis uji.
+     */
+    public function get_avg_component($start = NULL, $end = NULL)
+    {
+        $sql = "SELECT ac.name, ig.jenis, ROUND(AVG(sa.value)::numeric, 2) AS avg_score
+                FROM assessment.staging_assessment sa
+                JOIN assessment.component_aspect ca ON ca.id = sa.component_aspect_id
+                JOIN assessment.assessment_component ac ON ac.id = ca.assessment_component_id
+                JOIN assessment.interview_participants ip ON CAST(ip.employee_id AS VARCHAR) = CAST(sa.employee_id AS VARCHAR)
+                JOIN assessment.interview_groups ig ON ig.id = ip.interview_group_id
+                WHERE ig.jenis IN ('UKKJ', 'PDJL')";
+
+        $params = [];
+
+        if (!empty($start)) {
+            $sql .= " AND ig.created_at >= ?";
+            $params[] = $start . ' 00:00:00';
+        }
+
+        if (!empty($end)) {
+            $sql .= " AND ig.created_at <= ?";
+            $params[] = $end . ' 23:59:59';
+        }
+
+        $sql .= " GROUP BY ac.name, ig.jenis ORDER BY ac.name, ig.jenis";
+
+        return $this->db->query($sql, $params)->getResultArray();
+    }
+
+    /**
+     * Status verifikasi berkas peserta (employee.personnel.is_verified).
+     */
+    public function get_verification_status($start = NULL, $end = NULL)
+    {
+        $sql = "SELECT COALESCE(CAST(ep.is_verified AS VARCHAR), '0') AS verified, COUNT(*) AS total
+                FROM (
+                    SELECT DISTINCT ip.employee_id
+                    FROM assessment.interview_participants ip
+                    JOIN assessment.interview_groups ig ON ig.id = ip.interview_group_id
+                    WHERE ig.jenis IN ('UKKJ', 'PDJL')";
+
+        $params = [];
+
+        if (!empty($start)) {
+            $sql .= " AND ig.created_at >= ?";
+            $params[] = $start . ' 00:00:00';
+        }
+
+        if (!empty($end)) {
+            $sql .= " AND ig.created_at <= ?";
+            $params[] = $end . ' 23:59:59';
+        }
+
+        $sql .= ") p JOIN employee.personnel ep ON ep.id = p.employee_id GROUP BY 1";
+
+        $rows   = $this->db->query($sql, $params)->getResultArray();
+        $result = ['terverifikasi' => 0, 'belum' => 0, 'total' => 0];
+
+        foreach ($rows as $row) {
+            $count = (int) $row['total'];
+
+            $result['total'] += $count;
+
+            if ((string) $row['verified'] === '1') {
+                $result['terverifikasi'] += $count;
+            } else {
+                $result['belum'] += $count;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Breakdown persebaran kelulusan & verifikasi berdasarkan instansi pembina
+     * (instance.groups via unit kerja peserta) dan provinsi wilayah kerja.
+     * Kegiatan yang unit kerja pesertanya tidak ter-resolve dialihkan ke
+     * pemetaan instance_code (opsi gabungan).
+     */
+    public function get_region_breakdown($start = NULL, $end = NULL)
+    {
+        $builder = $this->db->table('assessment.interview_groups ig')
+            ->select('ig.id, ig.name, ig.jenis, ig.instance_code, ig.verification_status, ig.created_at')
+            ->whereIn('ig.jenis', ['UKKJ', 'PDJL']);
+
+        if (!empty($start)) {
+            $builder->where('ig.created_at >=', $start . ' 00:00:00');
+        }
+
+        if (!empty($end)) {
+            $builder->where('ig.created_at <=', $end . ' 23:59:59');
+        }
+
+        $groups = $builder->get()->getResultArray();
+
+        if (empty($groups)) {
+            return ['instansi' => [], 'provinsi' => [], 'totals' => $this->empty_breakdown_total()];
+        }
+
+        $group_ids = array_column($groups, 'id');
+
+        $participants = $this->db->table('assessment.interview_participants ip')
+            ->select('ip.interview_group_id, ip.employee_id, gr.group AS group_name, prov.province_name AS province_name')
+            ->join('employee.personnel ep', 'ep.id = ip.employee_id', 'left')
+            ->join('instance.organization_structures os', 'os.id = ep.organization_structure_id', 'left')
+            ->join('instance.organizations io', 'io.id = os.organization_id', 'left')
+            ->join('instance.groups gr', 'gr.id = io.group_id', 'left')
+            ->join('region.provinces prov', 'prov.id = io.province_id', 'left')
+            ->whereIn('ip.interview_group_id', $group_ids)
+            ->get()
+            ->getResultArray();
+
+        $group_members = [];
+
+        foreach ($participants as $row) {
+            $group_members[$row['interview_group_id']][] = $row;
+        }
+
+        $instansi = [];
+        $provinsi = [];
+        $totals   = $this->empty_breakdown_total();
+
+        foreach ($groups as $group) {
+            $members = $group_members[$group['id']] ?? [];
+
+            $npm = $this->majority_label($members, 'group_name');
+            $prov = $this->majority_label($members, 'province_name');
+
+            $instansi_label = !empty($npm) ? $npm : $this->map_instance_code($group['instance_code']);
+            $provinsi_label = !empty($prov) ? $prov : 'Tidak diketahui';
+
+            $scores = [];
+
+            foreach ($this->get_group_result($group['id'])['final_result'] as $item) {
+                $scores[$item['employee_id']] = (float) $item['final_score'];
+            }
+
+            $stat = [
+                'groups'        => 1,
+                'peserta'       => count($members),
+                'lulus'         => 0,
+                'tidak_lulus'   => 0,
+                'belum_dinilai' => 0,
+                'verifikasi'    => $this->bucket_verification($group['verification_status']),
+            ];
+
+            foreach ($members as $member) {
+                if (isset($scores[$member['employee_id']])) {
+                    if ($scores[$member['employee_id']] >= 80) {
+                        $stat['lulus']++;
+                    } else {
+                        $stat['tidak_lulus']++;
+                    }
+                } else {
+                    $stat['belum_dinilai']++;
+                }
+            }
+
+            $this->accumulate_breakdown($instansi, $instansi_label, $stat);
+            $this->accumulate_breakdown($provinsi, $provinsi_label, $stat);
+            $this->accumulate_breakdown_totals($totals, $stat);
+        }
+
+        uasort($instansi, fn($a, $b) => $b['peserta'] <=> $a['peserta']);
+        uasort($provinsi, fn($a, $b) => $b['peserta'] <=> $a['peserta']);
+
+        return [
+            'instansi' => $instansi,
+            'provinsi' => $provinsi,
+            'totals'   => $totals,
+        ];
+    }
+
+    private function empty_breakdown_total(): array
+    {
+        return [
+            'groups'        => 0,
+            'peserta'       => 0,
+            'lulus'         => 0,
+            'tidak_lulus'   => 0,
+            'belum_dinilai' => 0,
+            'verifikasi'    => ['draft' => 0, 'menunggu' => 0, 'disetujui' => 0, 'ditolak' => 0],
+        ];
+    }
+
+    private function bucket_verification($status): array
+    {
+        $allowed = ['draft', 'menunggu', 'disetujui', 'ditolak'];
+        $key     = in_array($status, $allowed, TRUE) ? $status : 'menunggu';
+
+        $bucket            = ['draft' => 0, 'menunggu' => 0, 'disetujui' => 0, 'ditolak' => 0];
+        $bucket[$key]      = 1;
+
+        return $bucket;
+    }
+
+    private function accumulate_breakdown(array &$target, $label, array $stat): void
+    {
+        if (!isset($target[$label])) {
+            $target[$label] = $this->empty_breakdown_total();
+        }
+
+        $this->accumulate_breakdown_totals($target[$label], $stat);
+    }
+
+    private function accumulate_breakdown_totals(array &$target, array $stat): void
+    {
+        $target['groups']        += $stat['groups'];
+        $target['peserta']       += $stat['peserta'];
+        $target['lulus']         += $stat['lulus'];
+        $target['tidak_lulus']   += $stat['tidak_lulus'];
+        $target['belum_dinilai'] += $stat['belum_dinilai'];
+
+        foreach (['draft', 'menunggu', 'disetujui', 'ditolak'] as $key) {
+            $target['verifikasi'][$key] += $stat['verifikasi'][$key];
+        }
+    }
+
+    private function majority_label(array $members, string $field): ?string
+    {
+        $counts = [];
+
+        foreach ($members as $member) {
+            $value = $member[$field] ?? NULL;
+
+            if (!empty($value)) {
+                $counts[$value] = ($counts[$value] ?? 0) + 1;
+            }
+        }
+
+        if (empty($counts)) {
+            return NULL;
+        }
+
+        arsort($counts);
+
+        return array_key_first($counts);
+    }
+
+    private function map_instance_code($code): string
+    {
+        $normalized = strtoupper(trim((string) $code));
+
+        $map = [
+            'IMIPAS'  => 'Imipas',
+            'IM'      => 'Imigrasi',
+            'PAS'     => 'Pemasyarakatan',
+            'SETJEN'  => 'Sekretariat Jenderal',
+            'IMIPAS1' => 'Imipas',
+        ];
+
+        if (isset($map[$normalized])) {
+            return $map[$normalized];
+        }
+
+        return !empty($normalized) ? $normalized : 'Tidak diketahui';
     }
 }

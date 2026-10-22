@@ -15,7 +15,7 @@ class InterviewGroupModel extends KV_Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['id', 'name', 'instance_code', 'level'];
+    protected $allowedFields    = ['id', 'name', 'instance_code', 'level', 'jenis'];
 
     // Dates
     protected $useTimestamps = true;
@@ -29,6 +29,7 @@ class InterviewGroupModel extends KV_Model
         'name'              => 'required',
         'instance_code'     => 'required',
         'level'             => 'required',
+        'jenis'             => 'required|in_list[UKKJ,PDJL]',
     ];
     protected $validationMessages   = [
         'name' => [
@@ -39,6 +40,10 @@ class InterviewGroupModel extends KV_Model
         ],
         'level' => [
             'required'      => 'Silahkan masukkan level kompetensi',
+        ],
+        'jenis' => [
+            'required'      => 'Silahkan pilih jenis uji kompetensi',
+            'in_list'       => 'Jenis uji kompetensi tidak valid',
         ],
     ];
     protected $skipValidation       = false;
@@ -91,7 +96,7 @@ class InterviewGroupModel extends KV_Model
 
     private function get_datatables_query()
     {
-        $builder = $this->db->table($this->alias)->select('iq.id, iq.name, iq.level, iq.created_at');
+        $builder = $this->db->table($this->alias)->select('iq.id, iq.name, iq.level, iq.jenis, iq.created_at');
 
         if (isset($this->request->getVar('search')['value']) && !empty($this->request->getVar('search')['value'])) {
             $builder->groupStart();

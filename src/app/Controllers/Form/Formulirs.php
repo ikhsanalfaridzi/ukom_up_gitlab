@@ -110,6 +110,7 @@ class Formulirs extends KV_Controller
 
     public function postCreate()
     {
+
         if (!is_authorized($this->_menu_code, 'insert')) {
             return access_denied();
         }
@@ -120,6 +121,7 @@ class Formulirs extends KV_Controller
 
     public function postEdit($id)
     {
+
         if (!is_authorized($this->_menu_code, 'update')) {
             return access_denied();
         }

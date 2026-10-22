@@ -207,6 +207,7 @@ class Interview_participant extends KV_Controller
 
     public function postCreate()
     {
+
         if (!is_authorized($this->_menu_code, 'insert')) {
             return access_denied();
         }
